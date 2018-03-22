@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "it": "tsc --outFile /dev/stdout --strict index.ts | node"
+  },
+  "devDependencies": {
+    "typescript": "2.7.2"
+  }
+}
