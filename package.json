@@ -1,8 +1,10 @@
 {
   "scripts": {
-    "serve": "parcel index.html"
+    "serve": "parcel index.html",
+    "deploy": "parcel build index.html --public-url ./ && gh-pages --dist dist/"
   },
   "devDependencies": {
+    "gh-pages": "1.1.0",
     "parcel-bundler": "1.6.2",
     "typescript": "2.7.2"
   },
