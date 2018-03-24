@@ -199,7 +199,9 @@ function summarize (history: Log[]): string {
 
   return first.before.tape.map((val, pointer) => {
     const diff = last.after.tape[pointer] - val
-    return diff === 0 ? '' : `c${pointer} ${diff > 0 ? '+' + diff : '' + diff}`
+    const verb = diff > 0 ? 'Add' : 'Subtract'
+    const preposition = diff > 0 ? 'to' : 'from'
+    return diff === 0 ? '' : `${verb} ${Math.abs(diff)} ${preposition} c${pointer}`
   }).filter(Boolean).join(', ')
 }
 
@@ -215,9 +217,24 @@ function changeSequencesPerLine (history: Log[]): Log[][][] {
   }, [])
 }
 
+function summariesPerLine (history: Log[]): string[] {
+  return changeSequencesPerLine(history).map(line => {
+    const summaries = line.map(seq => summarize(seq))
+    const summaryToCount = summaries.reduce((map, summary) => {
+      if (!summary) return map
+      if (!map[summary]) map[summary] = 0
+      map[summary] += 1
+      return map
+    }, {})
+    return Object.keys(summaryToCount).map(summary =>
+      `${summary}` + (summaryToCount[summary] ? ` x${summaryToCount[summary]}` : '')
+    ).join(' ~~ ') || '\u00A0'
+  })
+}
+
 class Boof extends React.Component<{}, {
   src: string,
-  summaries: string[][],
+  summaries: string[],
   program: Program | null
 }> {
   constructor (props) {
@@ -239,9 +256,7 @@ class Boof extends React.Component<{}, {
     this.setState({
       src,
       program: p,
-      summaries: changeSequencesPerLine(p.history).map(line =>
-        line.map(seq => summarize(seq))
-      )
+      summaries: summariesPerLine(p.history)
     })
   }
 
@@ -256,15 +271,16 @@ class Boof extends React.Component<{}, {
         }}></textarea>
       <ul className="pane">
         {this.state.src.split('\n').map((_, line) =>
-          <li key={line}>{(this.state.summaries[line] || []).filter(Boolean).join(' ~~ ') || '\u00A0'}</li>
+          <li key={line}>{this.state.summaries[line]}</li>
          )}
       </ul>
       {program && (
         <div>
+          {/* <p>{program.state.output.join(' | ')}</p> */}
           <p>{program.print()}</p>
           {!program.hasFinished() && <p>(didn't finish)</p>}
         </div>
-       )}
+      )}
     </div>
   }
 }
