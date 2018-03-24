@@ -308,9 +308,11 @@ class Boof extends React.Component<{}, {
     return <div>
       <header>
         <button onClick={() => {
+          const src = prettyPrint(this.state.src)
           this.setState({
-            src: prettyPrint(this.state.src)
+            src
           })
+          this.run(src)
         }}>pretty</button>
       </header>
       <textarea
