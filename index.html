@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>boof</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      textarea {
+        border: none;
+        outline: none;
+        padding: 0;
+      }
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .pane {
+        width: 30%;
+        display: inline-block;
+        height: calc(100vh - 100px);
+        font-family: monospace;
+        font-size: 15px;
+        white-space: nowrap;
+        overflow-x: auto;
+      }
+      .pane + .pane {
+        width: 70%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="main"></div>
+    <script src="index.tsx"></script>
+  </body>
+</html>

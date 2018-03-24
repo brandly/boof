@@ -1,3 +1,6 @@
+import * as React from 'react'
+import { render } from 'react-dom'
+
 interface State {
   index: number,
   pointer: number,
@@ -62,10 +65,10 @@ class Program {
 
   run (input: string, debug: boolean = false) {
     const inputChars = input.split('')
-    while (!this.hasFinished()) {
+    while (!this.hasFinished() && this.history.length < 10000) {
       let before = this.state
       let token = this.tokens[this.state.index]
-      this.state = advance(consume(this.src, this.state, inputChars))
+      this.state = advance(consume(this.tokens, this.state, inputChars))
       this.history.push({
         before,
         token,
@@ -89,25 +92,13 @@ class Program {
   }
 
   hasFinished () {
-    return this.state.index >= this.src.length
+    return this.state.index >= this.tokens.length
   }
 }
 
-{
-  const cat = ',[.,]'
-
-  // [ 72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33, 10 ]
-  const helloWorld = '++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.'
-
-  // const p = new Program(cat)
-  // console.log(JSON.stringify(p.run('abc', true).history, null, 2))
-  const p = new Program(helloWorld)
-  console.log(p.run('').print())
-}
-
 function advance (s: State) { return { ...s, index: s.index + 1 } }
-function consume (src: string, state: State, input: string[]) {
-  const char = src[state.index]
+function consume (tokens: Token[], state: State, input: string[]) {
+  const { char } = tokens[state.index]
   const { tape, pointer, output } = state
 
   switch (char) {
@@ -118,7 +109,7 @@ function consume (src: string, state: State, input: string[]) {
       return {
         ...state,
         tape: newTape,
-        pointer: pointer + 1
+        pointer: newPointer
       }
     }
     case '<':
@@ -148,9 +139,9 @@ function consume (src: string, state: State, input: string[]) {
         let { index } = state
         while (depth > 0) {
           index += 1
-          if (src[index] === '[') {
+          if (tokens[index].char === '[') {
             depth += 1
-          } else if (src[index] === ']') {
+          } else if (tokens[index].char === ']') {
             depth -= 1
           }
         }
@@ -167,9 +158,9 @@ function consume (src: string, state: State, input: string[]) {
       let { index } = state
       while (depth > 0) {
         index -= 1
-        if (src[index] === '[') {
+        if (tokens[index].char === '[') {
           depth -= 1
-        } else if (src[index] === ']') {
+        } else if (tokens[index].char === ']') {
           depth += 1
         }
       }
@@ -182,7 +173,7 @@ function consume (src: string, state: State, input: string[]) {
     case '.': {
       return {
         ...state,
-        output: output.concat(tape[state.pointer] || 0)
+        output: output.concat(tape[pointer] || 0)
       }
     }
     case ',': {
@@ -198,3 +189,83 @@ function consume (src: string, state: State, input: string[]) {
       return state
   }
 }
+
+// TODO: write a summary for each of these
+// take first `before` to last `after`, diff em
+// note which indexes changes in value, did the pointer move, did it produce output
+function summarize (history: Log[]): string {
+  const first = history[0]
+  const last = history[history.length - 1]
+
+  return first.before.tape.map((val, pointer) => {
+    const diff = last.after.tape[pointer] - val
+    return diff === 0 ? '' : `c${pointer} ${diff > 0 ? '+' + diff : '' + diff}`
+  }).filter(Boolean).join(', ')
+}
+
+function changeSequencesPerLine (history: Log[]): Log[][][] {
+  return history.reduce((result, log, index) => {
+    if (index === 0 || log.token.line !== history[index - 1].token.line) {
+      if (!result[log.token.line]) result[log.token.line] = []
+      result[log.token.line].push([])
+    }
+    const forLine = result[log.token.line]
+    forLine[forLine.length - 1].push(log)
+    return result
+  }, [])
+}
+
+class Boof extends React.Component<{}, {
+  result: string,
+  src: string,
+  history: Log[],
+  summaries: string[][]
+}> {
+  constructor (props) {
+    super(props)
+    this.state = {
+      result: '',
+      src: '++++++++\n[\n  >++++\n  [\n    >++\n    >+++\n    >+++\n    >+\n    <<<<-\n  ]\n  >+\n  >+\n  >-\n  >>+\n  [\n    <\n  ]\n  <-\n]\n>>.\n>---.\n+++++++..\n+++.\n>>.\n<-.\n<.\n+++.\n------.\n--------.\n>>+.\n>++.',
+      history: [],
+      summaries: []
+    }
+  }
+
+  componentDidMount () {
+    this.run(this.state.src)
+  }
+
+  run (src) {
+    const p = new Program(src)
+    p.run('')
+    this.setState({
+      src,
+      history: p.history,
+      result: p.print(),
+      summaries: changeSequencesPerLine(p.history).map(line =>
+        line.map(seq => summarize(seq))
+      )
+    })
+  }
+
+  render () {
+    return <div>
+      <textarea
+        className="pane"
+        value={this.state.src}
+        onChange={e => {
+          this.run(e.target.value)
+        }}></textarea>
+      <ul
+        className="pane"
+      >
+        {this.state.src.split('\n').map((_, line) =>
+          <li key={line}>{(this.state.summaries[line] || []).filter(Boolean).join(' ~~ ') || '\u00A0'}</li>
+         )}
+      </ul>
+      <p>{this.state.result}</p>
+    </div>
+  }
+}
+
+render(<Boof />, document.querySelector('#main'))

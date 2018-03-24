@@ -1,8 +1,14 @@
 {
   "scripts": {
-    "it": "tsc --outFile /dev/stdout --strict index.ts | node"
+    "serve": "parcel index.html"
   },
   "devDependencies": {
+    "parcel-bundler": "1.6.2",
     "typescript": "2.7.2"
+  },
+  "dependencies": {
+    "@types/react": "16.0.40",
+    "react": "16.2.0",
+    "react-dom": "16.2.0"
   }
 }

@@ -2,5 +2,5 @@
 
 ```
 $ npm install
-$ npm run it
+$ npm run serve
 ```
