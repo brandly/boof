@@ -96,8 +96,8 @@ class Program {
   }
 }
 
-function advance (s: State) { return { ...s, index: s.index + 1 } }
-function consume (tokens: Token[], state: State, input: string[]) {
+function advance (s: State): State { return { ...s, index: s.index + 1 } }
+function consume (tokens: Token[], state: State, input: string[]): State {
   const { char } = tokens[state.index]
   const { tape, pointer, output } = state
 
@@ -216,18 +216,16 @@ function changeSequencesPerLine (history: Log[]): Log[][][] {
 }
 
 class Boof extends React.Component<{}, {
-  result: string,
   src: string,
-  history: Log[],
-  summaries: string[][]
+  summaries: string[][],
+  program: Program | null
 }> {
   constructor (props) {
     super(props)
     this.state = {
-      result: '',
       src: '++++++++\n[\n  >++++\n  [\n    >++\n    >+++\n    >+++\n    >+\n    <<<<-\n  ]\n  >+\n  >+\n  >-\n  >>+\n  [\n    <\n  ]\n  <-\n]\n>>.\n>---.\n+++++++..\n+++.\n>>.\n<-.\n<.\n+++.\n------.\n--------.\n>>+.\n>++.',
-      history: [],
-      summaries: []
+      summaries: [],
+      program: null
     }
   }
 
@@ -240,8 +238,7 @@ class Boof extends React.Component<{}, {
     p.run('')
     this.setState({
       src,
-      history: p.history,
-      result: p.print(),
+      program: p,
       summaries: changeSequencesPerLine(p.history).map(line =>
         line.map(seq => summarize(seq))
       )
@@ -249,6 +246,7 @@ class Boof extends React.Component<{}, {
   }
 
   render () {
+    const { program } = this.state
     return <div>
       <textarea
         className="pane"
@@ -256,14 +254,17 @@ class Boof extends React.Component<{}, {
         onChange={e => {
           this.run(e.target.value)
         }}></textarea>
-      <ul
-        className="pane"
-      >
+      <ul className="pane">
         {this.state.src.split('\n').map((_, line) =>
           <li key={line}>{(this.state.summaries[line] || []).filter(Boolean).join(' ~~ ') || '\u00A0'}</li>
          )}
       </ul>
-      <p>{this.state.result}</p>
+      {program && (
+        <div>
+          <p>{program.print()}</p>
+          {!program.hasFinished() && <p>(didn't finish)</p>}
+        </div>
+       )}
     </div>
   }
 }
