@@ -300,6 +300,18 @@ const Tape = (props: { program: Program }) => {
   return <pre>{indexes + '\n' + prints + '\n' + pointer}</pre>
 }
 
+function getUrlHash (): { [key:string]: string } {
+  return window.location
+            .hash
+            .slice(1)
+            .split('&')
+            .reduce((out, pair) => {
+              const [key, val] = decodeURIComponent(pair).split('=')
+              out[key] = val
+              return out
+            }, {})
+}
+
 class Boof extends React.Component<{}, {
   src: string,
   summaries: string[],
@@ -315,7 +327,13 @@ class Boof extends React.Component<{}, {
   }
 
   componentDidMount () {
-    this.run(this.state.src)
+    const hash = getUrlHash()
+    try {
+      this.run(atob(hash.s))
+    } catch (e) {
+      console.error(e)
+      this.run(this.state.src)
+    }
   }
 
   run (src) {
@@ -346,7 +364,9 @@ class Boof extends React.Component<{}, {
           value={this.state.src}
           onChange={e => {
             if (e.target instanceof HTMLTextAreaElement) {
-              this.run(e.target.value)
+              const src = e.target.value
+              window.location.hash = `s=${btoa(src)}`
+              this.run(src)
             }
           }}
         ></TextareaAutosize>
