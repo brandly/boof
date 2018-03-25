@@ -222,6 +222,7 @@ function changeSequencesPerLine (history: Log[]): Log[][][] {
   }, [])
 }
 
+const nbsp = '\u00A0'
 function summariesPerLine (history: Log[]): string[] {
   return changeSequencesPerLine(history).map(line => {
     const summaries = line.map(seq => summarize(seq))
@@ -233,7 +234,7 @@ function summariesPerLine (history: Log[]): string[] {
     }, {})
     return Object.keys(summaryToCount).map(summary =>
       `${summary}` + (summaryToCount[summary] > 1 ? ` x${summaryToCount[summary]}` : '')
-    ).join(' ~~ ') || '\u00A0'
+    ).join(' ~~ ') || nbsp
   })
 }
 
@@ -351,7 +352,7 @@ class Boof extends React.Component<{}, {
         ></TextareaAutosize>
         <ul className="pane">
           {this.state.src.split('\n').map((_, line) =>
-            <li key={line}>{this.state.summaries[line]}</li>
+            <li key={line}>{this.state.summaries[line] || nbsp}</li>
            )}
         </ul>
       </div>
