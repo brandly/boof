@@ -206,7 +206,7 @@ function summarize (history: Log[]): string {
   })
 
   const prints: string = last.after.output.slice(first.before.output.length).map(char => String.fromCharCode(char)).join('')
-  const printed: string = prints.length ? `Print "${prints}"` : ''
+  const printed: string = prints.length ? `Print ${JSON.stringify(prints)}` : ''
   return cellChanges.concat(printed).filter(Boolean).join(', ')
 }
 
