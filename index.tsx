@@ -299,7 +299,7 @@ const Tape = (props: { program: Program }) => {
   const pointer = tape.map((_, index) =>
     toDigits(digits, (index === props.program.state.pointer ? '^' : ''))
   ).join(separator)
-  return <pre>{'Cell  ' + indexes + '\n' + 'Value ' + prints + '\n' + '      ' + pointer}</pre>
+  return <pre className="tape">{'Cell  ' + indexes + '\n' + 'Value ' + prints + '\n' + '      ' + pointer}</pre>
 }
 
 function getUrlHash (): { [key:string]: string } {
@@ -361,17 +361,22 @@ class Boof extends React.Component<{}, {
         }}>pretty</button>
       </header>
       <div className="scroll">
-        <TextareaAutosize
-          className="pane"
-          value={this.state.src}
-          onChange={e => {
-            if (e.target instanceof HTMLTextAreaElement) {
-              const src = e.target.value
-              window.location.hash = `s=${btoa(src)}`
-              this.run(src)
-            }
-          }}
-        ></TextareaAutosize>
+        <div className="pane">
+          <TextareaAutosize
+            style={{
+              fontSize: 'inherit',
+              fontFamily: 'inherit'
+            }}
+            value={this.state.src}
+            onChange={e => {
+              if (e.target instanceof HTMLTextAreaElement) {
+                const src = e.target.value
+                window.location.hash = `s=${btoa(src)}`
+                this.run(src)
+              }
+            }}
+          ></TextareaAutosize>
+        </div>
         <ul className="pane">
           {this.state.src.split('\n').map((_, line) =>
             <li key={line}>{this.state.summaries[line] || nbsp}</li>
@@ -379,11 +384,11 @@ class Boof extends React.Component<{}, {
         </ul>
       </div>
       {program && (
-        <div>
+        <footer>
           <Tape program={program} />
           <pre>{program.print()}</pre>
           {!program.hasFinished() && <p>(didn't finish)</p>}
-        </div>
+        </footer>
       )}
     </div>
   }
