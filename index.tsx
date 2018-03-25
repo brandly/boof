@@ -315,6 +315,7 @@ function getUrlHash (): { [key:string]: string } {
 }
 
 class Boof extends React.Component<{}, {
+  input: string,
   src: string,
   summaries: string[],
   program: Program | null
@@ -322,6 +323,7 @@ class Boof extends React.Component<{}, {
   constructor (props) {
     super(props)
     this.state = {
+      input: '',
       src: '++++++++\n[\n  >++++\n  [\n    >++\n    >+++\n    >+++\n    >+\n    <<<<-\n  ]\n  >+\n  >+\n  >-\n  >>+\n  [\n    <\n  ]\n  <-\n]\n>>.\n>---.\n+++++++..\n+++.\n>>.\n<-.\n<.\n+++.\n------.\n--------.\n>>+.\n>++.',
       summaries: [],
       program: null
@@ -334,13 +336,13 @@ class Boof extends React.Component<{}, {
       this.run(atob(hash.s))
     } catch (e) {
       console.error(e)
-      this.run(this.state.src)
+      this.run()
     }
   }
 
-  run (src) {
+  run (src = this.state.src) {
     const p = new Program(src)
-    p.run('')
+    p.run(this.state.input)
     this.setState({
       src,
       program: p,
@@ -349,7 +351,7 @@ class Boof extends React.Component<{}, {
   }
 
   render () {
-    const { program } = this.state
+    const { program, input } = this.state
     return <div>
       <header>
         <button onClick={() => {
@@ -359,6 +361,25 @@ class Boof extends React.Component<{}, {
           })
           this.run(src)
         }}>pretty</button>
+        {program && (
+          <div className="io">
+            <input
+              type="text"
+              placeholder="input"
+              value={input}
+              onChange={e => {
+                this.setState({ input: e.target.value })
+                // wait for state to update
+                setTimeout(() => {
+                  this.run()
+                })
+              }}
+            />
+            <span className="operator">-></span>
+            <input type="text" placeholder="output" value={program.print()} readOnly />
+            {!program.hasFinished() && <span>(didn't finish)</span>}
+          </div>
+        )}
       </header>
       <div className="scroll">
         <div className="pane">
@@ -386,8 +407,6 @@ class Boof extends React.Component<{}, {
       {program && (
         <footer>
           <Tape program={program} />
-          <pre>{program.print()}</pre>
-          {!program.hasFinished() && <p>(didn't finish)</p>}
         </footer>
       )}
     </div>
