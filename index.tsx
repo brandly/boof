@@ -279,6 +279,25 @@ function prettyPrint (str: string): string {
   return output.join('')
 }
 
+function toDigits (count: number, input): string {
+  let v: string = input.toString()
+  while (v.length < count) {
+    v = ' ' + v
+  }
+  return v
+}
+const Tape = (props: { program: Program }) => {
+  const { tape } = props.program.state
+  const separator = ' '
+  const digits = Math.max.apply(Math, tape.map(v => v.toString().length))
+  const indexes = tape.map((_, index) => toDigits(digits, index)).join(separator)
+  const prints = tape.map(v => toDigits(digits, v)).join(separator)
+  const pointer = tape.map((_, index) =>
+    toDigits(digits, (index === props.program.state.pointer ? '^' : ''))
+  ).join(separator)
+  return <pre>{indexes + '\n' + prints + '\n' + pointer}</pre>
+}
+
 class Boof extends React.Component<{}, {
   src: string,
   summaries: string[],
@@ -332,7 +351,7 @@ class Boof extends React.Component<{}, {
       </ul>
       {program && (
         <div>
-          {/* <p>{program.state.output.join(' | ')}</p> */}
+          <Tape program={program} />
           <pre>{program.print()}</pre>
           {!program.hasFinished() && <p>(didn't finish)</p>}
         </div>
