@@ -197,12 +197,16 @@ function summarize (history: Log[]): string {
   const first = history[0]
   const last = history[history.length - 1]
 
-  return first.before.tape.map((val, pointer) => {
+  const cellChanges: string[] = first.before.tape.map((val, pointer) => {
     const diff = last.after.tape[pointer] - val
     const verb = diff > 0 ? 'Add' : 'Subtract'
     const preposition = diff > 0 ? 'to' : 'from'
     return diff === 0 ? '' : `${verb} ${Math.abs(diff)} ${preposition} c${pointer}`
-  }).filter(Boolean).join(', ')
+  })
+
+  const prints: string = last.after.output.slice(first.before.output.length).map(char => String.fromCharCode(char)).join('')
+  const printed: string = prints.length ? `Print "${prints}"` : ''
+  return cellChanges.concat(printed).filter(Boolean).join(', ')
 }
 
 function changeSequencesPerLine (history: Log[]): Log[][][] {
@@ -227,7 +231,7 @@ function summariesPerLine (history: Log[]): string[] {
       return map
     }, {})
     return Object.keys(summaryToCount).map(summary =>
-      `${summary}` + (summaryToCount[summary] ? ` x${summaryToCount[summary]}` : '')
+      `${summary}` + (summaryToCount[summary] > 1 ? ` x${summaryToCount[summary]}` : '')
     ).join(' ~~ ') || '\u00A0'
   })
 }
@@ -329,7 +333,7 @@ class Boof extends React.Component<{}, {
       {program && (
         <div>
           {/* <p>{program.state.output.join(' | ')}</p> */}
-          <p>{program.print()}</p>
+          <pre>{program.print()}</pre>
           {!program.hasFinished() && <p>(didn't finish)</p>}
         </div>
       )}
