@@ -191,9 +191,6 @@ function consume (tokens: Token[], state: State, input: string[]): State {
   }
 }
 
-// TODO: write a summary for each of these
-// take first `before` to last `after`, diff em
-// note which indexes changes in value, did the pointer move, did it produce output
 function summarize (history: Log[]): string {
   const first = history[0]
   const last = history[history.length - 1]
