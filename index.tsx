@@ -288,13 +288,18 @@ function toDigits (count: number, input): string {
 const Tape = (props: { program: Program }) => {
   const { tape } = props.program.state
   const separator = ' '
-  const digits = Math.max.apply(Math, tape.map(v => v.toString().length))
+  const digits = Math.max.apply(
+    Math,
+    tape
+      .map(v => v.toString().length)
+      .concat((tape.length - 1).toString().length)
+  )
   const indexes = tape.map((_, index) => toDigits(digits, index)).join(separator)
   const prints = tape.map(v => toDigits(digits, v)).join(separator)
   const pointer = tape.map((_, index) =>
     toDigits(digits, (index === props.program.state.pointer ? '^' : ''))
   ).join(separator)
-  return <pre>{indexes + '\n' + prints + '\n' + pointer}</pre>
+  return <pre>{'Cell  ' + indexes + '\n' + 'Value ' + prints + '\n' + '      ' + pointer}</pre>
 }
 
 function getUrlHash (): { [key:string]: string } {
