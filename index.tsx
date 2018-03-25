@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { render } from 'react-dom'
+import TextareaAutosize from 'react-autosize-textarea'
 
 interface State {
   index: number,
@@ -338,17 +339,22 @@ class Boof extends React.Component<{}, {
           this.run(src)
         }}>pretty</button>
       </header>
-      <textarea
-        className="pane"
-        value={this.state.src}
-        onChange={e => {
-          this.run(e.target.value)
-        }}></textarea>
-      <ul className="pane">
-        {this.state.src.split('\n').map((_, line) =>
-          <li key={line}>{this.state.summaries[line]}</li>
-         )}
-      </ul>
+      <div className="scroll">
+        <TextareaAutosize
+          className="pane"
+          value={this.state.src}
+          onChange={e => {
+            if (e.target instanceof HTMLTextAreaElement) {
+              this.run(e.target.value)
+            }
+          }}
+        ></TextareaAutosize>
+        <ul className="pane">
+          {this.state.src.split('\n').map((_, line) =>
+            <li key={line}>{this.state.summaries[line]}</li>
+           )}
+        </ul>
+      </div>
       {program && (
         <div>
           <Tape program={program} />

@@ -22,14 +22,19 @@
         padding: 0;
       }
 
+      .scroll {
+        height: calc(100vh - 160px);
+        overflow-y: auto;
+      }
+
       .pane {
         width: 30%;
         display: inline-block;
-        height: calc(100vh - 160px);
         font-family: monospace;
         font-size: 15px;
         white-space: nowrap;
         overflow-x: auto;
+        vertical-align: top;
       }
       .pane + .pane {
         width: 70%;
