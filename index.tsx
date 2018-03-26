@@ -361,6 +361,9 @@ class Boof extends React.Component<{}, {
           })
           this.run(src)
         }}>pretty</button>
+        <button onClick={() => {
+          window.location.hash = `s=${btoa(this.state.src)}`
+        }}>save</button>
         {program && (
           <div className="io">
             <input
@@ -392,7 +395,6 @@ class Boof extends React.Component<{}, {
             onChange={e => {
               if (e.target instanceof HTMLTextAreaElement) {
                 const src = e.target.value
-                window.location.hash = `s=${btoa(src)}`
                 this.run(src)
               }
             }}
