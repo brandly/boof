@@ -391,7 +391,8 @@ class Boof extends React.Component<{}, {
           <TextareaAutosize
             style={{
               fontSize: 'inherit',
-              fontFamily: 'inherit'
+              fontFamily: 'inherit',
+              minWidth: '100%'
             }}
             value={this.state.src}
             onChange={e => {
