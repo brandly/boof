@@ -356,22 +356,9 @@ class Boof extends React.Component<{}, {
     const { program, input } = this.state
     return <div>
       <header>
-        <div className="buttons">
-          <button onClick={() => {
-            const src = prettyPrint(this.state.src)
-            this.setState({
-              src
-            })
-            this.run(src)
-          }}>pretty</button>
-          <button onClick={() => {
-            try {
-              window.location.hash = `s=${btoa(this.state.src)}`
-            } catch (e) {
-              alert(e)
-            }
-          }}>save</button>
-        </div>
+        <a href="https://github.com/brandly/boof">
+          <h1>boof</h1>
+        </a>
         {program && (
           <div className="io">
             <input
@@ -391,6 +378,22 @@ class Boof extends React.Component<{}, {
             {!program.hasFinished() && <span>(didn't finish)</span>}
           </div>
         )}
+        <div className="buttons">
+          <button onClick={() => {
+            const src = prettyPrint(this.state.src)
+            this.setState({
+              src
+            })
+            this.run(src)
+          }}>pretty</button>
+          <button onClick={() => {
+            try {
+              window.location.hash = `s=${btoa(this.state.src)}`
+            } catch (e) {
+              alert(e)
+            }
+          }}>save</button>
+        </div>
       </header>
       <div className="scroll">
         <div className="pane">
