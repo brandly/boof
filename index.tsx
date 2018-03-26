@@ -354,16 +354,18 @@ class Boof extends React.Component<{}, {
     const { program, input } = this.state
     return <div>
       <header>
-        <button onClick={() => {
-          const src = prettyPrint(this.state.src)
-          this.setState({
-            src
-          })
-          this.run(src)
-        }}>pretty</button>
-        <button onClick={() => {
-          window.location.hash = `s=${btoa(this.state.src)}`
-        }}>save</button>
+        <div className="buttons">
+          <button onClick={() => {
+            const src = prettyPrint(this.state.src)
+            this.setState({
+              src
+            })
+            this.run(src)
+          }}>pretty</button>
+          <button onClick={() => {
+            window.location.hash = `s=${btoa(this.state.src)}`
+          }}>save</button>
+        </div>
         {program && (
           <div className="io">
             <input
