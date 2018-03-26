@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { render } from 'react-dom'
-import TextareaAutosize from 'react-autosize-textarea'
 
 interface State {
   index: number,
@@ -288,8 +287,8 @@ function toDigits (count: number, input): string {
   }
   return v
 }
-const Tape = (props: { program: Program }) => {
-  const { tape } = props.program.state
+const Tape = (props: { state: State }) => {
+  const { tape } = props.state
   const separator = ' '
   const digits = Math.max.apply(
     Math,
@@ -300,7 +299,7 @@ const Tape = (props: { program: Program }) => {
   const indexes = tape.map((_, index) => toDigits(digits, index)).join(separator)
   const prints = tape.map(v => toDigits(digits, v)).join(separator)
   const pointer = tape.map((_, index) =>
-    toDigits(digits, (index === props.program.state.pointer ? '^' : ''))
+    toDigits(digits, (index === props.state.pointer ? '^' : ''))
   ).join(separator)
   return <pre className="tape">{'Cell  ' + indexes + '\n' + 'Value ' + prints + '\n' + '      ' + pointer}</pre>
 }
@@ -366,7 +365,11 @@ class Boof extends React.Component<{}, {
             this.run(src)
           }}>pretty</button>
           <button onClick={() => {
-            window.location.hash = `s=${btoa(this.state.src)}`
+            try {
+              window.location.hash = `s=${btoa(this.state.src)}`
+            } catch (e) {
+              alert(e)
+            }
           }}>save</button>
         </div>
         {program && (
@@ -391,11 +394,14 @@ class Boof extends React.Component<{}, {
       </header>
       <div className="scroll">
         <div className="pane">
-          <TextareaAutosize
+          <textarea
+            wrap="off"
             style={{
               fontSize: 'inherit',
               fontFamily: 'inherit',
-              minWidth: '100%'
+              minWidth: '100%',
+              height: (this.state.src.split('\n').length * 18) + 4 + 'px',
+              overflowX: 'auto'
             }}
             value={this.state.src}
             onChange={e => {
@@ -404,7 +410,7 @@ class Boof extends React.Component<{}, {
                 this.run(src)
               }
             }}
-          ></TextareaAutosize>
+          ></textarea>
         </div>
         <ul className="pane">
           {this.state.src.split('\n').map((_, line) =>
@@ -414,7 +420,7 @@ class Boof extends React.Component<{}, {
       </div>
       {program && (
         <footer>
-          <Tape program={program} />
+          <Tape state={program.state} />
         </footer>
       )}
     </div>
