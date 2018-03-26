@@ -192,19 +192,22 @@ function consume (tokens: Token[], state: State, input: string[]): State {
 }
 
 function summarize (history: Log[]): string {
-  const first = history[0]
-  const last = history[history.length - 1]
+  const { before } = history[0]
+  const { after } = history[history.length - 1]
 
-  const cellChanges: string[] = first.before.tape.map((val, pointer) => {
-    const diff = last.after.tape[pointer] - val
+  const cellChanges: string[] = []
+  for (let i = 0; i < Math.max(before.tape.length, after.tape.length); i++) {
+    const diff: number = after.tape[i] - (before.tape[i] || 0)
     const verb = diff > 0 ? 'Add' : 'Subtract'
     const preposition = diff > 0 ? 'to' : 'from'
-    return diff === 0 ? '' : `${verb} ${Math.abs(diff)} ${preposition} c${pointer}`
-  })
+    cellChanges.push(
+      diff === 0 ? '' : `${verb} ${Math.abs(diff)} ${preposition} c${i}`
+    )
+  }
 
-  const prints: string = last.after.output.slice(first.before.output.length).map(char => String.fromCharCode(char)).join('')
+  const prints: string = after.output.slice(before.output.length).map(char => String.fromCharCode(char)).join('')
   const printed: string = prints.length ? `Print ${JSON.stringify(prints)}` : ''
-  return cellChanges.concat(printed).filter(Boolean).join(', ')
+  return cellChanges.concat(printed).filter(Boolean).join('. ')
 }
 
 function changeSequencesPerLine (history: Log[]): Log[][][] {
