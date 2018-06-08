@@ -1,16 +1,33 @@
 {
   "scripts": {
     "serve": "parcel index.html",
-    "deploy": "parcel build index.html --public-url ./ && gh-pages --dist dist/"
+    "deploy": "parcel build index.html --public-url ./ && gh-pages --dist dist/",
+    "test": "jest"
   },
   "devDependencies": {
     "gh-pages": "1.1.0",
+    "jest": "23.1.0",
     "parcel-bundler": "1.6.2",
+    "ts-jest": "22.4.6",
     "typescript": "2.7.2"
   },
   "dependencies": {
     "@types/react": "16.0.40",
     "react": "16.2.0",
     "react-dom": "16.2.0"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }

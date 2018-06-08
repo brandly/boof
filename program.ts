@@ -62,7 +62,7 @@ export class Program {
     this.history = []
   }
 
-  run (input: string, debug: boolean = false) {
+  run (input: string = '', debug: boolean = false) {
     const inputChars = input.split('')
     while (!this.hasFinished() && this.history.length < 10000) {
       let before = this.state
