@@ -66,7 +66,7 @@ export class Program {
 
   run (input: string = '', debug: boolean = false) {
     const inputChars = input.split('')
-    while (!this.hasFinished() && this.history.length < 10000) {
+    while (!this.hasFinished() && this.history.length < 100000) {
       let before = this.state
       let token = this.tokens[this.state.index]
       this.state = advance(consume(this.tokens, this.state, inputChars))
