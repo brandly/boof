@@ -1,4 +1,4 @@
-import { includes } from './util.tsx'
+import { includes } from './util'
 
 const maxCellVal = 256
 
