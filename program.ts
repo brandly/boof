@@ -113,11 +113,17 @@ function consume (tokens: Token[], state: State, input: string[]): State {
         pointer: newPointer
       }
     }
-    case '<':
+    case '<': {
+      const updated = pointer - 1
+      if (updated < 0) {
+        // TODO: improve this error, provide inline feedback
+        throw new Error('Invalid tape pointer')
+      }
       return {
         ...state,
-        pointer: pointer - 1
+        pointer: updated
       }
+    }
     case '+': {
       const newTape = tape.slice(0)
       newTape[pointer] = ((newTape[pointer] || 0) + 1) % maxCellVal
