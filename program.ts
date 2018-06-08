@@ -1,5 +1,7 @@
 import { includes } from './util.tsx'
 
+const maxCellVal = 256
+
 interface State {
   index: number,
   pointer: number,
@@ -118,7 +120,7 @@ function consume (tokens: Token[], state: State, input: string[]): State {
       }
     case '+': {
       const newTape = tape.slice(0)
-      newTape[pointer] = (newTape[pointer] || 0) + 1
+      newTape[pointer] = ((newTape[pointer] || 0) + 1) % maxCellVal
       return {
         ...state,
         tape: newTape
@@ -127,6 +129,9 @@ function consume (tokens: Token[], state: State, input: string[]): State {
     case '-': {
       const newTape = tape.slice(0)
       newTape[pointer] = (newTape[pointer] || 0) - 1
+      if (newTape[pointer] < 0) {
+        newTape[pointer] = newTape[pointer] + maxCellVal
+      }
       return {
         ...state,
         tape: newTape
