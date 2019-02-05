@@ -3,7 +3,7 @@ import { render } from 'react-dom'
 import { Program } from './program'
 import { includes } from './util'
 
-function summarize (history: Log[]): string {
+function summarize(history: Log[]): string {
   const { before } = history[0]
   const { after } = history[history.length - 1]
 
@@ -17,12 +17,18 @@ function summarize (history: Log[]): string {
     )
   }
 
-  const prints: string = after.output.slice(before.output.length).map(char => String.fromCharCode(char)).join('')
+  const prints: string = after.output
+    .slice(before.output.length)
+    .map(char => String.fromCharCode(char))
+    .join('')
   const printed: string = prints.length ? `Print ${JSON.stringify(prints)}` : ''
-  return cellChanges.concat(printed).filter(Boolean).join('. ')
+  return cellChanges
+    .concat(printed)
+    .filter(Boolean)
+    .join('. ')
 }
 
-function changeSequencesPerLine (history: Log[]): Log[][][] {
+function changeSequencesPerLine(history: Log[]): Log[][][] {
   return history.reduce((result, log, index) => {
     if (index === 0 || log.token.line !== history[index - 1].token.line) {
       if (!result[log.token.line]) result[log.token.line] = []
@@ -35,7 +41,7 @@ function changeSequencesPerLine (history: Log[]): Log[][][] {
 }
 
 const nbsp = '\u00A0'
-function summariesPerLine (history: Log[]): string[] {
+function summariesPerLine(history: Log[]): string[] {
   return changeSequencesPerLine(history).map(line => {
     const summaries = line.map(seq => summarize(seq))
     const summaryToCount = summaries.reduce((map, summary) => {
@@ -44,9 +50,15 @@ function summariesPerLine (history: Log[]): string[] {
       map[summary] += 1
       return map
     }, {})
-    return Object.keys(summaryToCount).map(summary =>
-      `${summary}` + (summaryToCount[summary] > 1 ? ` x${summaryToCount[summary]}` : '')
-    ).join(' ~~ ') || nbsp
+    return (
+      Object.keys(summaryToCount)
+        .map(
+          summary =>
+            `${summary}` +
+            (summaryToCount[summary] > 1 ? ` x${summaryToCount[summary]}` : '')
+        )
+        .join(' ~~ ') || nbsp
+    )
   })
 }
 
@@ -58,7 +70,7 @@ const repeat = (val, times) => {
   return output.join('')
 }
 
-function prettyPrint (str: string): string {
+function prettyPrint(str: string): string {
   var depth = 0
   var output: string[] = []
   const modifiers = '+-,.'
@@ -92,7 +104,7 @@ function prettyPrint (str: string): string {
   return output.join('')
 }
 
-function toDigits (count: number, input): string {
+function toDigits(count: number, input): string {
   let v: string = input.toString()
   while (v.length < count) {
     v = ' ' + v
@@ -108,43 +120,64 @@ const Tape = (props: { state: State }) => {
       .map(v => v.toString().length)
       .concat((tape.length - 1).toString().length)
   )
-  const indexes = tape.map((_, index) => toDigits(digits, index)).join(separator)
+  const indexes = tape
+    .map((_, index) => toDigits(digits, index))
+    .join(separator)
   const prints = tape.map(v => toDigits(digits, v)).join(separator)
-  const pointer = tape.map((_, index) =>
-    toDigits(digits, (index === props.state.pointer ? '^' : ''))
-  ).join(separator)
-  return <pre className="tape">{'Cell  ' + indexes + '\n' + 'Value ' + prints + '\n' + '      ' + pointer}</pre>
+  const pointer = tape
+    .map((_, index) =>
+      toDigits(digits, index === props.state.pointer ? '^' : '')
+    )
+    .join(separator)
+  return (
+    <pre className="tape">
+      {'Cell  ' +
+        indexes +
+        '\n' +
+        'Value ' +
+        prints +
+        '\n' +
+        '      ' +
+        pointer}
+    </pre>
+  )
 }
 
-function getUrlHash (): { [key:string]: string } {
-  return window.location
-            .hash
-            .slice(1)
-            .split('&')
-            .reduce((out, pair) => {
-              const [key, val] = decodeURIComponent(pair).split('=')
-              out[key] = val
-              return out
-            }, {})
+function getUrlHash(): { [key: string]: string } {
+  return window.location.hash
+    .slice(1)
+    .split('&')
+    .reduce((out, pair) => {
+      const [key, val] = decodeURIComponent(pair).split('=')
+      out[key] = val
+      return out
+    }, {})
 }
 
-class Boof extends React.Component<{}, {
-  input: string,
-  src: string,
-  summaries: string[],
+class Executor {
+  constructor() {}
+}
+
+interface BoofProps {
+  input: string
+  src: string
+  summaries: string[]
   program: Program | null
-}> {
-  constructor (props) {
+}
+
+class Boof extends React.Component<{}, BoofProps> {
+  constructor(props) {
     super(props)
     this.state = {
       input: '',
-      src: '++++++++\n[\n  >++++\n  [\n    >++\n    >+++\n    >+++\n    >+\n    <<<<-\n  ]\n  >+\n  >+\n  >-\n  >>+\n  [\n    <\n  ]\n  <-\n]\n>>.\n>---.\n+++++++..\n+++.\n>>.\n<-.\n<.\n+++.\n------.\n--------.\n>>+.\n>++.',
+      src:
+        '++++++++\n[\n  >++++\n  [\n    >++\n    >+++\n    >+++\n    >+\n    <<<<-\n  ]\n  >+\n  >+\n  >-\n  >>+\n  [\n    <\n  ]\n  <-\n]\n>>.\n>---.\n+++++++..\n+++.\n>>.\n<-.\n<.\n+++.\n------.\n--------.\n>>+.\n>++.',
       summaries: [],
       program: null
     }
   }
 
-  componentDidMount () {
+  componentDidMount() {
     const hash = getUrlHash()
     try {
       this.run(atob(hash.s))
@@ -154,7 +187,7 @@ class Boof extends React.Component<{}, {
     }
   }
 
-  run (src = this.state.src) {
+  run(src = this.state.src) {
     const p = new Program(src)
     p.run(this.state.input)
     this.setState({
@@ -164,81 +197,96 @@ class Boof extends React.Component<{}, {
     })
   }
 
-  render () {
+  render() {
     const { program, input } = this.state
-    return <div>
-      <header>
-        <a href="https://github.com/brandly/boof">
-          <h1>boof</h1>
-        </a>
-        {program && (
-          <div className="io">
-            <input
-              type="text"
-              placeholder="input"
-              value={input}
-              onChange={e => {
-                this.setState({ input: e.target.value })
-                // wait for state to update
-                setTimeout(() => {
-                  this.run()
+    return (
+      <div>
+        <header>
+          <a href="https://github.com/brandly/boof">
+            <h1>boof</h1>
+          </a>
+          {program && (
+            <div className="io">
+              <input
+                type="text"
+                placeholder="input"
+                value={input}
+                onChange={e => {
+                  this.setState({ input: e.target.value })
+                  // wait for state to update
+                  setTimeout(() => {
+                    this.run()
+                  })
+                }}
+              />
+              <span className="operator">-></span>
+              <input
+                type="text"
+                placeholder="output"
+                value={program.print()}
+                readOnly
+              />
+              {!program.hasFinished() && <span>(didn't finish)</span>}
+            </div>
+          )}
+          <div className="buttons">
+            <button
+              onClick={() => {
+                const src = prettyPrint(this.state.src)
+                this.setState({
+                  src
                 })
+                this.run(src)
+              }}
+            >
+              pretty
+            </button>
+            <button
+              onClick={() => {
+                try {
+                  window.location.hash = `s=${btoa(this.state.src)}`
+                } catch (e) {
+                  alert(e)
+                }
+              }}
+            >
+              save
+            </button>
+          </div>
+        </header>
+        <div className="scroll">
+          <div className="pane">
+            <textarea
+              wrap="off"
+              style={{
+                fontSize: 'inherit',
+                fontFamily: 'inherit',
+                minWidth: '100%',
+                height: this.state.src.split('\n').length * 18 + 4 + 'px',
+                overflowX: 'auto'
+              }}
+              value={this.state.src}
+              onChange={e => {
+                if (e.target instanceof HTMLTextAreaElement) {
+                  const src = e.target.value
+                  this.run(src)
+                }
               }}
             />
-            <span className="operator">-></span>
-            <input type="text" placeholder="output" value={program.print()} readOnly />
-            {!program.hasFinished() && <span>(didn't finish)</span>}
           </div>
+          <ul className="pane">
+            {this.state.src.split('\n').map((_, line) => (
+              <li key={line}>{this.state.summaries[line] || nbsp}</li>
+            ))}
+          </ul>
+        </div>
+        {program && (
+          <footer>
+            <Tape state={program.state} />
+          </footer>
         )}
-        <div className="buttons">
-          <button onClick={() => {
-            const src = prettyPrint(this.state.src)
-            this.setState({
-              src
-            })
-            this.run(src)
-          }}>pretty</button>
-          <button onClick={() => {
-            try {
-              window.location.hash = `s=${btoa(this.state.src)}`
-            } catch (e) {
-              alert(e)
-            }
-          }}>save</button>
-        </div>
-      </header>
-      <div className="scroll">
-        <div className="pane">
-          <textarea
-            wrap="off"
-            style={{
-              fontSize: 'inherit',
-              fontFamily: 'inherit',
-              minWidth: '100%',
-              height: (this.state.src.split('\n').length * 18) + 4 + 'px',
-              overflowX: 'auto'
-            }}
-            value={this.state.src}
-            onChange={e => {
-              if (e.target instanceof HTMLTextAreaElement) {
-                const src = e.target.value
-                this.run(src)
-              }
-            }}
-          ></textarea>
-        </div>
-        <ul className="pane">
-          {this.state.src.split('\n').map((_, line) =>
-            <li key={line}>{this.state.summaries[line] || nbsp}</li>
-           )}
-        </ul>
       </div>
-      {program && (
-        <footer>
-          <Tape state={program.state} />
-        </footer>
-      )}
-    </div>
+    )
   }
 }
 
