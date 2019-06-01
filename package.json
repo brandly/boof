@@ -5,9 +5,10 @@
     "test": "jest"
   },
   "devDependencies": {
+    "@types/react-dom": "16.8.4",
     "gh-pages": "1.1.0",
     "jest": "23.1.0",
-    "parcel-bundler": "1.6.2",
+    "parcel-bundler": "1.12.3",
     "ts-jest": "22.4.6",
     "typescript": "2.7.2"
   },
