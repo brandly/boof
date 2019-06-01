@@ -44,12 +44,15 @@ const nbsp = '\u00A0'
 function summariesPerLine(history: Log[]): string[] {
   return changeSequencesPerLine(history).map(line => {
     const summaries = line.map(seq => summarize(seq))
-    const summaryToCount = summaries.reduce((map, summary) => {
-      if (!summary) return map
-      if (!map[summary]) map[summary] = 0
-      map[summary] += 1
-      return map
-    }, {})
+    const summaryToCount: { [summary: string]: number } = summaries.reduce(
+      (map, summary) => {
+        if (!summary) return map
+        if (!map[summary]) map[summary] = 0
+        map[summary] += 1
+        return map
+      },
+      {}
+    )
     return (
       Object.keys(summaryToCount)
         .map(
@@ -62,7 +65,7 @@ function summariesPerLine(history: Log[]): string[] {
   })
 }
 
-const repeat = (val, times) => {
+const repeat = (val: string, times: number) => {
   const output = []
   for (var i = 0; i < times; i++) {
     output.push(val)
@@ -121,11 +124,11 @@ const Tape = (props: { state: State }) => {
       .concat((tape.length - 1).toString().length)
   )
   const indexes = tape
-    .map((_, index) => toDigits(digits, index))
+    .map((_, index: number) => toDigits(digits, index))
     .join(separator)
   const prints = tape.map(v => toDigits(digits, v)).join(separator)
   const pointer = tape
-    .map((_, index) =>
+    .map((_, index: number) =>
       toDigits(digits, index === props.state.pointer ? '^' : '')
     )
     .join(separator)
@@ -158,14 +161,14 @@ class Executor {
   constructor() {}
 }
 
-interface BoofProps {
+interface BoofState {
   input: string
   src: string
   summaries: string[]
   program: Program | null
 }
 
-class Boof extends React.Component<{}, BoofProps> {
+class Boof extends React.Component<{}, BoofState> {
   constructor(props) {
     super(props)
     this.state = {
