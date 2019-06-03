@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "serve": "parcel index.html",
-    "deploy": "parcel build index.html --public-url ./ && gh-pages --dist dist/",
+    "serve": "parcel src/index.html",
+    "deploy": "parcel build src/index.html --public-url ./ && gh-pages --dist dist/",
     "test": "jest"
   },
   "devDependencies": {
