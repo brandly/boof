@@ -3,21 +3,21 @@ import { includes } from './util'
 const maxCellVal = 256
 
 interface State {
-  index: number,
-  pointer: number,
-  tape: number[],
+  index: number
+  pointer: number
+  tape: number[]
   output: number[]
 }
 
 interface Token {
-  char: string,
-  line: number,
+  char: string
+  line: number
   column: number
 }
 
 interface Log {
-  before: State,
-  token: Token,
+  before: State
+  token: Token
   after: State
 }
 
@@ -47,12 +47,12 @@ const tokenize = (src: string) => {
 }
 
 export class Program {
-  src: string;
-  tokens: Token[];
-  state: State;
-  history: Log[];
+  src: string
+  tokens: Token[]
+  state: State
+  history: Log[]
 
-  constructor (src: string) {
+  constructor(src: string) {
     this.src = src
     this.tokens = tokenize(src)
     this.state = {
@@ -64,9 +64,9 @@ export class Program {
     this.history = []
   }
 
-  run (input: string = '', debug: boolean = false) {
+  run(input: string = '', debug: boolean = false) {
     const inputChars = input.split('')
-    while (!this.hasFinished() && this.history.length < 100000) {
+    while (!this.hasFinished()) {
       let before = this.state
       let token = this.tokens[this.state.index]
       this.state = advance(consume(this.tokens, this.state, inputChars))
@@ -75,30 +75,31 @@ export class Program {
         token,
         after: this.state
       })
-      debug && console.log(
-        this.src[this.state.index - 1],
-        '\n',
-        this.state.tape
-          .map((c, i) =>
-            i === this.state.pointer ? `(${c})` : c.toString()
-          )
-          .join(' ')
-       )
+      debug &&
+        console.log(
+          this.src[this.state.index - 1],
+          '\n',
+          this.state.tape
+            .map((c, i) => (i === this.state.pointer ? `(${c})` : c.toString()))
+            .join(' ')
+        )
     }
     return this
   }
 
-  print () {
+  print() {
     return this.state.output.map(char => String.fromCharCode(char)).join('')
   }
 
-  hasFinished () {
+  hasFinished() {
     return this.state.index >= this.tokens.length
   }
 }
 
-function advance (s: State): State { return { ...s, index: s.index + 1 } }
-function consume (tokens: Token[], state: State, input: string[]): State {
+function advance(s: State): State {
+  return { ...s, index: s.index + 1 }
+}
+function consume(tokens: Token[], state: State, input: string[]): State {
   const { char } = tokens[state.index]
   const { tape, pointer, output } = state
 
