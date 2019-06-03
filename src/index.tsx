@@ -1,89 +1,10 @@
 import * as React from 'react'
 import { render } from 'react-dom'
-import { includes, getUrlHash } from './util'
+import { getUrlHash } from './util'
+import Tape from './Tape'
+import prettyPrint from './prettyPrint'
 
 const worker = new Worker('./worker.tsx')
-
-const repeat = (val: string, times: number) => {
-  const output = []
-  for (var i = 0; i < times; i++) {
-    output.push(val)
-  }
-  return output.join('')
-}
-
-function prettyPrint(str: string): string {
-  var depth = 0
-  var output: string[] = []
-  const modifiers = '+-,.'
-  for (var i = 0; i < str.length; i++) {
-    if (str[i] !== '\n' && str[i] !== ' ') {
-      // Indent after linebreak
-      if (output[output.length - 1] === '\n') {
-        if (str[i] == ']') {
-          output.push(repeat('  ', depth - 1))
-        } else {
-          output.push(repeat('  ', depth))
-        }
-      }
-      output.push(str[i])
-    }
-    // Break after modifier(s)
-    if (includes(modifiers, str[i]) && !includes(modifiers, str[i + 1])) {
-      output.push('\n')
-    }
-    // Break after brackets
-    if (str[i] === '[' || str[i] == ']') {
-      output.push('\n')
-    }
-    if (str[i] === '[') {
-      depth += 1
-    }
-    if (str[i] == ']') {
-      depth -= 1
-    }
-  }
-  return output.join('')
-}
-
-function toDigits(count: number, input): string {
-  let v: string = input.toString()
-  while (v.length < count) {
-    v = ' ' + v
-  }
-  return v
-}
-const Tape = (props: { state: State }) => {
-  const { tape } = props.state
-  const separator = ' '
-  const digits = Math.max.apply(
-    Math,
-    tape
-      .map(v => v.toString().length)
-      .concat((tape.length - 1).toString().length)
-  )
-  const indexes = tape
-    .map((_, index: number) => toDigits(digits, index))
-    .join(separator)
-  const prints = tape.map(v => toDigits(digits, v)).join(separator)
-  const pointer = tape
-    .map((_, index: number) =>
-      toDigits(digits, index === props.state.pointer ? '^' : '')
-    )
-    .join(separator)
-  return (
-    <pre className="tape">
-      {'Cell  ' +
-        indexes +
-        '\n' +
-        'Value ' +
-        prints +
-        '\n' +
-        '      ' +
-        pointer}
-    </pre>
-  )
-}
 
 interface BoofState {
   input: string
