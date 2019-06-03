@@ -4,17 +4,16 @@ import { getUrlHash } from './util'
 import Tape from './Tape'
 import prettyPrint from './prettyPrint'
 
-const worker = new Worker('./worker.tsx')
-
 interface BoofState {
   input: string
   src: string
   program: { summaries: string[]; output: string; hasFinished: bool } | null
-  tape: Program.State
 }
 
 const nbsp = '\u00A0'
 class Boof extends React.Component<{}, BoofState> {
+  worker: Worker
+
   constructor(props) {
     super(props)
     this.state = {
@@ -24,11 +23,17 @@ class Boof extends React.Component<{}, BoofState> {
       ),
       program: null
     }
+    this.worker = this.initWorker()
+  }
+
+  initWorker() {
+    let worker = new Worker('./worker.tsx')
     worker.onmessage = e => {
       this.setState({
         program: e.data
       })
     }
+    return worker
   }
 
   componentDidMount() {
@@ -42,7 +47,9 @@ class Boof extends React.Component<{}, BoofState> {
   }
 
   run(src = this.state.src) {
-    worker.postMessage({ src, input: this.state.input })
+    if (this.worker) this.worker.terminate()
+    this.worker = this.initWorker()
+    this.worker.postMessage({ src, input: this.state.input })
 
     this.setState({
       src
