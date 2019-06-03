@@ -8,6 +8,7 @@ interface BoofState {
   input: string
   src: string
   program: { summaries: string[]; output: string; hasFinished: bool } | null
+  loading: boolean
 }
 
 const nbsp = '\u00A0'
@@ -21,7 +22,8 @@ class Boof extends React.Component<{}, BoofState> {
       src: prettyPrint(
         '++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.'
       ),
-      program: null
+      program: null,
+      loading: false
     }
     this.worker = this.initWorker()
   }
@@ -30,7 +32,8 @@ class Boof extends React.Component<{}, BoofState> {
     let worker = new Worker('./worker.tsx')
     worker.onmessage = e => {
       this.setState({
-        program: e.data
+        program: e.data,
+        loading: false
       })
     }
     return worker
@@ -52,12 +55,13 @@ class Boof extends React.Component<{}, BoofState> {
     this.worker.postMessage({ src, input: this.state.input })
 
     this.setState({
-      src
+      src,
+      loading: true
     })
   }
 
   render() {
-    const { program, input } = this.state
+    const { program, input, loading } = this.state
     return (
       <div>
         <header>
@@ -111,6 +115,7 @@ class Boof extends React.Component<{}, BoofState> {
             >
               save
             </button>
+            {loading && <span>loading...</span>}
           </div>
         </header>
         <div className="scroll">
