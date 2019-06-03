@@ -1,69 +1,8 @@
 import * as React from 'react'
 import { render } from 'react-dom'
-import { Program } from './program'
-import { includes } from './util'
+import { includes, getUrlHash } from './util'
 
-function summarize(history: Log[]): string {
-  const { before } = history[0]
-  const { after } = history[history.length - 1]
-
-  const cellChanges: string[] = []
-  for (let i = 0; i < Math.max(before.tape.length, after.tape.length); i++) {
-    const diff: number = after.tape[i] - (before.tape[i] || 0)
-    const verb = diff > 0 ? 'Add' : 'Subtract'
-    const preposition = diff > 0 ? 'to' : 'from'
-    cellChanges.push(
-      diff === 0 ? '' : `${verb} ${Math.abs(diff)} ${preposition} c${i}`
-    )
-  }
-
-  const prints: string = after.output
-    .slice(before.output.length)
-    .map(char => String.fromCharCode(char))
-    .join('')
-  const printed: string = prints.length ? `Print ${JSON.stringify(prints)}` : ''
-  return cellChanges
-    .concat(printed)
-    .filter(Boolean)
-    .join('. ')
-}
-
-function changeSequencesPerLine(history: Log[]): Log[][][] {
-  return history.reduce((result, log, index) => {
-    if (index === 0 || log.token.line !== history[index - 1].token.line) {
-      if (!result[log.token.line]) result[log.token.line] = []
-      result[log.token.line].push([])
-    }
-    const forLine = result[log.token.line]
-    forLine[forLine.length - 1].push(log)
-    return result
-  }, [])
-}
-
-const nbsp = '\u00A0'
-function summariesPerLine(history: Log[]): string[] {
-  return changeSequencesPerLine(history).map(line => {
-    const summaries = line.map(seq => summarize(seq))
-    const summaryToCount: { [summary: string]: number } = summaries.reduce(
-      (map, summary) => {
-        if (!summary) return map
-        if (!map[summary]) map[summary] = 0
-        map[summary] += 1
-        return map
-      },
-      {}
-    )
-    return (
-      Object.keys(summaryToCount)
-        .map(
-          summary =>
-            `${summary}` +
-            (summaryToCount[summary] > 1 ? ` x${summaryToCount[summary]}` : '')
-        )
-        .join(' ~~ ') || nbsp
-    )
-  })
-}
+const worker = new Worker('./worker.tsx')
 
 const repeat = (val: string, times: number) => {
   const output = []
@@ -146,37 +85,28 @@ const Tape = (props: { state: State }) => {
   )
 }
 
-function getUrlHash(): { [key: string]: string } {
-  return window.location.hash
-    .slice(1)
-    .split('&')
-    .reduce((out, pair) => {
-      const [key, val] = decodeURIComponent(pair).split('=')
-      out[key] = val
-      return out
-    }, {})
-}
-
-class Executor {
-  constructor() {}
-}
-
 interface BoofState {
   input: string
   src: string
-  summaries: string[]
-  program: Program | null
+  program: { summaries: string[]; output: string; hasFinished: bool } | null
+  tape: Program.State
 }
 
+const nbsp = '\u00A0'
 class Boof extends React.Component<{}, BoofState> {
   constructor(props) {
     super(props)
     this.state = {
       input: '',
-      src:
-        '++++++++\n[\n  >++++\n  [\n    >++\n    >+++\n    >+++\n    >+\n    <<<<-\n  ]\n  >+\n  >+\n  >-\n  >>+\n  [\n    <\n  ]\n  <-\n]\n>>.\n>---.\n+++++++..\n+++.\n>>.\n<-.\n<.\n+++.\n------.\n--------.\n>>+.\n>++.',
-      summaries: [],
+      src: prettyPrint(
+        '++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.'
+      ),
       program: null
+    }
+    worker.onmessage = e => {
+      this.setState({
+        program: e.data
+      })
     }
   }
 
@@ -185,18 +115,16 @@ class Boof extends React.Component<{}, BoofState> {
     try {
       this.run(atob(hash.s))
     } catch (e) {
-      console.error(e)
+      console.error('Error getting URL hash:', e)
       this.run()
     }
   }
 
   run(src = this.state.src) {
-    const p = new Program(src)
-    p.run(this.state.input)
+    worker.postMessage({ src, input: this.state.input })
+
     this.setState({
-      src,
-      program: p,
-      summaries: summariesPerLine(p.history)
+      src
     })
   }
 
@@ -226,10 +154,10 @@ class Boof extends React.Component<{}, BoofState> {
               <input
                 type="text"
                 placeholder="output"
-                value={program.print()}
+                value={program.output}
                 readOnly
               />
-              {!program.hasFinished() && <span>(didn't finish)</span>}
+              {!program.hasFinished && <span>(didn't finish)</span>}
             </div>
           )}
           <div className="buttons">
@@ -278,9 +206,13 @@ class Boof extends React.Component<{}, BoofState> {
             />
           </div>
           <ul className="pane">
-            {this.state.src.split('\n').map((_, line) => (
-              <li key={line}>{this.state.summaries[line] || nbsp}</li>
-            ))}
+            {program
+              ? this.state.src
+                  .split('\n')
+                  .map((_, line) => (
+                    <li key={line}>{program.summaries[line] || nbsp}</li>
+                  ))
+              : null}
           </ul>
         </div>
         {program && (
