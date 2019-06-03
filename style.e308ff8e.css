@@ -1,0 +1,111 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #313437;
+  color: #d4d4d2;
+  font-family: Corbel, "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu Sans", "Bitstream Vera Sans", "Liberation Sans", Verdana, "Verdana Ref", sans-serif;
+}
+
+textarea {
+  border: none;
+  outline: none;
+  padding: 0;
+  resize: none;
+  background: transparent;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+a,
+button {
+  background: inherit;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 16px;
+  padding: 8px 12px;
+  color: inherit;
+  cursor: pointer;
+}
+
+a:hover,
+button:hover {
+  background: #3e454c;
+}
+
+h1 {
+  display: inline-block;
+  font-size: 18px;
+  margin: 0;
+  padding: 0;
+}
+
+.buttons {
+  display: inline-block;
+}
+
+.scroll {
+  height: calc(100vh - 125px);
+  overflow-y: auto;
+  border: 1px solid #26292c;
+}
+
+pre,
+.pane {
+  font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+}
+
+.pane {
+  width: 50%;
+  display: inline-block;
+  padding: 9px 12px;
+  font-size: 15px;
+  vertical-align: top;
+  background: #26292c;
+  min-height: 100%;
+}
+.pane + .pane {
+  white-space: nowrap;
+  overflow-x: auto;
+  background: #313437;
+}
+
+.tape {
+  overflow-x: auto;
+  margin-bottom: 0;
+}
+
+.io {
+  display: inline-block;
+  padding: 12px;
+}
+
+.io input {
+  background: #26292c;
+  border-radius: 4px;
+  color: inherit;
+  border: none;
+  outline: none;
+  font-size: inherit;
+  padding: 4px 8px;
+}
+
+.io .operator {
+  padding: 0 12px;
+}
+
+footer {
+  padding: 0 12px;
+  font-size: 16px;
+}
+
+
+/*# sourceMappingURL=/style.e308ff8e.css.map */
