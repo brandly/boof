@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "serve": "parcel src/index.html",
+    "start": "parcel src/index.html",
     "deploy": "parcel build src/index.html --public-url ./ && gh-pages --dist dist/",
     "test": "jest"
   },

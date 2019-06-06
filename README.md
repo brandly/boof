@@ -10,7 +10,7 @@
 
 ```
 $ npm install
-$ npm run serve
+$ npm start
 # if you're me
 $ npm run deploy
 ```
