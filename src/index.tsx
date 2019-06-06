@@ -7,7 +7,7 @@ import prettyPrint from './prettyPrint'
 interface BoofState {
   input: string
   src: string
-  program: { summaries: string[]; output: string; hasFinished: bool } | null
+  program: { summaries: string[]; output: string } | null
   loading: boolean
 }
 
@@ -89,7 +89,6 @@ class Boof extends React.Component<{}, BoofState> {
                 value={program.output}
                 readOnly
               />
-              {!program.hasFinished && <span>(didn't finish)</span>}
             </div>
           )}
           <div className="buttons">

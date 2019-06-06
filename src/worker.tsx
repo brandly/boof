@@ -6,7 +6,6 @@ self.onmessage = e => {
   program.run(input)
   self.postMessage({
     output: program.print(),
-    hasFinished: program.hasFinished(),
     summaries: summariesPerLine(program.history),
     state: program.state
   })
