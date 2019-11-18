@@ -1,17 +1,20 @@
 import * as Program from './program'
 
-self.onmessage = e => {
+self.onmessage = (e: { data: { src: string; input: string } }) => {
   const { src, input } = e.data
   const program = new Program.Program(src)
   program.run(input)
-  self.postMessage({
-    output: program.print(),
-    summaries: summariesPerLine(program.history),
-    state: program.state
-  })
+  self.postMessage(
+    {
+      output: program.print(),
+      summaries: summariesPerLine(program.history),
+      state: program.state
+    },
+    []
+  )
 }
 
-function summarize(history: Log[]): string {
+function summarize(history: Program.Log[]): string {
   const { before } = history[0]
   const { after } = history[history.length - 1]
 
@@ -36,10 +39,12 @@ function summarize(history: Log[]): string {
     .join('. ')
 }
 
-function changeSequencesPerLine(history: Log[]): Log[][][] {
-  return history.reduce((result, log, index) => {
+function changeSequencesPerLine(history: Program.Log[]): Program.Log[][][] {
+  return history.reduce((result: Program.Log[][][], log, index) => {
     if (index === 0 || log.token.line !== history[index - 1].token.line) {
-      if (!result[log.token.line]) result[log.token.line] = []
+      if (!result[log.token.line]) {
+        result[log.token.line] = []
+      }
       result[log.token.line].push([])
     }
     const forLine = result[log.token.line]

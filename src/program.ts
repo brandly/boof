@@ -7,13 +7,13 @@ export type State = {
   output: number[]
 }
 
-type Token = {
+export type Token = {
   char: string
   line: number
   column: number
 }
 
-type Log = {
+export type Log = {
   before: State
   token: Token
   after: State
