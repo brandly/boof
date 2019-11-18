@@ -18431,9 +18431,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-exports.includes = function (list, val) {
+function includes(list, val) {
   return list.indexOf(val) !== -1;
-};
+}
+
+exports.includes = includes;
 
 function getUrlHash() {
   return window.location.hash.slice(1).split('&').reduce(function (out, pair) {
@@ -18509,7 +18511,7 @@ var util_1 = require("./util");
 function prettyPrint(str) {
   var depth = 0;
   var output = [];
-  var modifiers = '+-,.';
+  var modifiers = '+-,.'.split('');
 
   for (var i = 0; i < str.length; i++) {
     if (str[i] !== '\n' && str[i] !== ' ') {
@@ -18562,18 +18564,22 @@ var repeat = function repeat(val, times) {
 "use strict";
 
 var __extends = this && this.__extends || function () {
-  var extendStatics = Object.setPrototypeOf || {
-    __proto__: []
-  } instanceof Array && function (d, b) {
-    d.__proto__ = b;
-  } || function (d, b) {
-    for (var p in b) {
-      if (b.hasOwnProperty(p)) d[p] = b[p];
-    }
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+      }
+    };
+
+    return _extendStatics(d, b);
   };
 
   return function (d, b) {
-    extendStatics(d, b);
+    _extendStatics(d, b);
 
     function __() {
       this.constructor = d;
@@ -18708,7 +18714,7 @@ function (_super) {
       placeholder: "output",
       value: program.output,
       readOnly: true
-    }), !program.hasFinished && React.createElement("span", null, "(didn't finish)")), React.createElement("div", {
+    })), React.createElement("div", {
       className: "buttons"
     }, React.createElement("button", {
       onClick: function onClick() {
@@ -18792,7 +18798,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54349" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60974" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -18823,8 +18829,9 @@ if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
         assetsToAccept.forEach(function (v) {
           hmrAcceptRun(v[0], v[1]);
         });
-      } else {
-        window.location.reload();
+      } else if (location.reload) {
+        // `location` global exists in a web worker context but lacks `.reload()` function.
+        location.reload();
       }
     }
 

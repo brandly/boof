@@ -117,52 +117,30 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"util.ts":[function(require,module,exports) {
+})({"program.ts":[function(require,module,exports) {
 "use strict";
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+var __assign = this && this.__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
 
-exports.includes = function (list, val) {
-  return list.indexOf(val) !== -1;
-};
-
-function getUrlHash() {
-  return window.location.hash.slice(1).split('&').reduce(function (out, pair) {
-    var _a = decodeURIComponent(pair).split('='),
-        key = _a[0],
-        val = _a[1];
-
-    out[key] = val;
-    return out;
-  }, {});
-}
-
-exports.getUrlHash = getUrlHash;
-},{}],"program.ts":[function(require,module,exports) {
-"use strict";
-
-var __assign = this && this.__assign || Object.assign || function (t) {
-  for (var s, i = 1, n = arguments.length; i < n; i++) {
-    s = arguments[i];
-
-    for (var p in s) {
-      if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+      for (var p in s) {
+        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+      }
     }
-  }
 
-  return t;
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
 };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-var util_1 = require("./util");
-
 var maxCellVal = 256;
-var valid = '><+-[].,';
+var valid = new Set('><+-[].,'.split(''));
 
 var tokenize = function tokenize(src) {
   var chars = src.split('');
@@ -185,7 +163,7 @@ var tokenize = function tokenize(src) {
     return t;
   });
   return tokens.filter(function (t) {
-    return util_1.includes(valid, t.char);
+    return valid.has(t.char);
   });
 };
 
@@ -250,7 +228,7 @@ function () {
 exports.Program = Program;
 
 function advance(s) {
-  return __assign({}, s, {
+  return __assign(__assign({}, s), {
     index: s.index + 1
   });
 }
@@ -267,7 +245,7 @@ function consume(tokens, state, input) {
         var newTape = tape.slice(0);
         var newPointer = pointer + 1;
         newTape[newPointer] = newTape[newPointer] || 0;
-        return __assign({}, state, {
+        return __assign(__assign({}, state), {
           tape: newTape,
           pointer: newPointer
         });
@@ -282,7 +260,7 @@ function consume(tokens, state, input) {
           throw new Error('Invalid tape pointer');
         }
 
-        return __assign({}, state, {
+        return __assign(__assign({}, state), {
           pointer: updated
         });
       }
@@ -291,7 +269,7 @@ function consume(tokens, state, input) {
       {
         var newTape = tape.slice(0);
         newTape[pointer] = ((newTape[pointer] || 0) + 1) % maxCellVal;
-        return __assign({}, state, {
+        return __assign(__assign({}, state), {
           tape: newTape
         });
       }
@@ -305,7 +283,7 @@ function consume(tokens, state, input) {
           newTape[pointer] = newTape[pointer] + maxCellVal;
         }
 
-        return __assign({}, state, {
+        return __assign(__assign({}, state), {
           tape: newTape
         });
       }
@@ -326,7 +304,7 @@ function consume(tokens, state, input) {
             }
           }
 
-          return __assign({}, state, {
+          return __assign(__assign({}, state), {
             index: index
           });
         } else {
@@ -350,14 +328,14 @@ function consume(tokens, state, input) {
         }
 
         index -= 1;
-        return __assign({}, state, {
+        return __assign(__assign({}, state), {
           index: index
         });
       }
 
     case '.':
       {
-        return __assign({}, state, {
+        return __assign(__assign({}, state), {
           output: output.concat(tape[pointer] || 0)
         });
       }
@@ -367,7 +345,7 @@ function consume(tokens, state, input) {
         var val = (input.shift() || '\0').charCodeAt(0);
         var newTape = tape.slice(0);
         newTape[pointer] = val;
-        return __assign({}, state, {
+        return __assign(__assign({}, state), {
           tape: newTape
         });
       }
@@ -376,27 +354,36 @@ function consume(tokens, state, input) {
       return state;
   }
 }
-},{"./util":"util.ts"}],"worker.tsx":[function(require,module,exports) {
+},{}],"worker.tsx":[function(require,module,exports) {
 "use strict";
+
+var __importStar = this && this.__importStar || function (mod) {
+  if (mod && mod.__esModule) return mod;
+  var result = {};
+  if (mod != null) for (var k in mod) {
+    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+  }
+  result["default"] = mod;
+  return result;
+};
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var program_1 = require("./program");
+var Program = __importStar(require("./program"));
 
 self.onmessage = function (e) {
   var _a = e.data,
       src = _a.src,
       input = _a.input;
-  var program = new program_1.Program(src);
+  var program = new Program.Program(src);
   program.run(input);
   self.postMessage({
     output: program.print(),
-    hasFinished: program.hasFinished(),
     summaries: summariesPerLine(program.history),
     state: program.state
-  });
+  }, []);
 };
 
 function summarize(history) {
@@ -421,7 +408,10 @@ function summarize(history) {
 function changeSequencesPerLine(history) {
   return history.reduce(function (result, log, index) {
     if (index === 0 || log.token.line !== history[index - 1].token.line) {
-      if (!result[log.token.line]) result[log.token.line] = [];
+      if (!result[log.token.line]) {
+        result[log.token.line] = [];
+      }
+
       result[log.token.line].push([]);
     }
 
@@ -477,7 +467,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54349" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60974" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -508,8 +498,9 @@ if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
         assetsToAccept.forEach(function (v) {
           hmrAcceptRun(v[0], v[1]);
         });
-      } else {
-        window.location.reload();
+      } else if (location.reload) {
+        // `location` global exists in a web worker context but lacks `.reload()` function.
+        location.reload();
       }
     }
 
