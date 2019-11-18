@@ -1,12 +1,14 @@
 import * as React from 'react'
-function toDigits(count: number, input): string {
+import * as Program from './program'
+
+function toDigits(count: number, input: number | string): string {
   let v: string = input.toString()
   while (v.length < count) {
     v = ' ' + v
   }
   return v
 }
-const Tape = (props: { state: State }) => {
+const Tape = (props: { state: Program.State }) => {
   const { tape } = props.state
   const separator = ' '
   const digits = Math.max.apply(

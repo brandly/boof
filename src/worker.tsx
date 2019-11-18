@@ -1,17 +1,20 @@
-import { Program } from './program'
+import * as Program from './program'
 
-self.onmessage = e => {
+self.onmessage = (e: { data: { src: string; input: string } }) => {
   const { src, input } = e.data
-  const program = new Program(src)
+  const program = new Program.Program(src)
   program.run(input)
-  self.postMessage({
-    output: program.print(),
-    summaries: summariesPerLine(program.history),
-    state: program.state
-  })
+  self.postMessage(
+    {
+      output: program.print(),
+      summaries: summariesPerLine(program.history),
+      state: program.state
+    },
+    []
+  )
 }
 
-function summarize(history: Log[]): string {
+function summarize(history: Program.Log[]): string {
   const { before } = history[0]
   const { after } = history[history.length - 1]
 
@@ -27,7 +30,7 @@ function summarize(history: Log[]): string {
 
   const prints: string = after.output
     .slice(before.output.length)
-    .map(char => String.fromCharCode(char))
+    .map((char: number) => String.fromCharCode(char))
     .join('')
   const printed: string = prints.length ? `Print ${JSON.stringify(prints)}` : ''
   return cellChanges
@@ -36,10 +39,12 @@ function summarize(history: Log[]): string {
     .join('. ')
 }
 
-function changeSequencesPerLine(history: Log[]): Log[][][] {
-  return history.reduce((result, log, index) => {
+function changeSequencesPerLine(history: Program.Log[]): Program.Log[][][] {
+  return history.reduce((result: Program.Log[][][], log, index) => {
     if (index === 0 || log.token.line !== history[index - 1].token.line) {
-      if (!result[log.token.line]) result[log.token.line] = []
+      if (!result[log.token.line]) {
+        result[log.token.line] = []
+      }
       result[log.token.line].push([])
     }
     const forLine = result[log.token.line]
@@ -49,11 +54,12 @@ function changeSequencesPerLine(history: Log[]): Log[][][] {
 }
 
 const nbsp = '\u00A0'
-function summariesPerLine(history: Log[]): string[] {
+type SummaryCount = { [summary: string]: number }
+function summariesPerLine(history: Program.Log[]): string[] {
   return changeSequencesPerLine(history).map(line => {
     const summaries = line.map(seq => summarize(seq))
-    const summaryToCount: { [summary: string]: number } = summaries.reduce(
-      (map, summary) => {
+    const summaryToCount: SummaryCount = summaries.reduce(
+      (map: SummaryCount, summary) => {
         if (!summary) return map
         if (!map[summary]) map[summary] = 0
         map[summary] += 1

@@ -1,8 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
+    "jsx": "react",
+    "lib": ["dom", "webworker", "es6", "es2017", "es2019"],
+    "noEmit": true,
+    "skipLibCheck": true,
     "strict": true,
-    "jsx": "react"
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   }
 }

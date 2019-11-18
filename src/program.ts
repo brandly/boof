@@ -1,27 +1,25 @@
-import { includes } from './util'
-
 const maxCellVal = 256
 
-interface State {
+export type State = {
   index: number
   pointer: number
   tape: number[]
   output: number[]
 }
 
-interface Token {
+export type Token = {
   char: string
   line: number
   column: number
 }
 
-interface Log {
+export type Log = {
   before: State
   token: Token
   after: State
 }
 
-const valid = '><+-[].,'
+const valid = new Set('><+-[].,'.split(''))
 const tokenize = (src: string) => {
   const chars = src.split('')
 
@@ -43,7 +41,7 @@ const tokenize = (src: string) => {
     return t
   })
 
-  return tokens.filter(t => includes(valid, t.char))
+  return tokens.filter(t => valid.has(t.char))
 }
 
 export class Program {
