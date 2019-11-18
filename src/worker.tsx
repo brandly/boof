@@ -1,8 +1,8 @@
-import { Program } from './program'
+import * as Program from './program'
 
 self.onmessage = e => {
   const { src, input } = e.data
-  const program = new Program(src)
+  const program = new Program.Program(src)
   program.run(input)
   self.postMessage({
     output: program.print(),
@@ -27,7 +27,7 @@ function summarize(history: Log[]): string {
 
   const prints: string = after.output
     .slice(before.output.length)
-    .map(char => String.fromCharCode(char))
+    .map((char: number) => String.fromCharCode(char))
     .join('')
   const printed: string = prints.length ? `Print ${JSON.stringify(prints)}` : ''
   return cellChanges
@@ -49,11 +49,12 @@ function changeSequencesPerLine(history: Log[]): Log[][][] {
 }
 
 const nbsp = '\u00A0'
-function summariesPerLine(history: Log[]): string[] {
+type SummaryCount = { [summary: string]: number }
+function summariesPerLine(history: Program.Log[]): string[] {
   return changeSequencesPerLine(history).map(line => {
     const summaries = line.map(seq => summarize(seq))
-    const summaryToCount: { [summary: string]: number } = summaries.reduce(
-      (map, summary) => {
+    const summaryToCount: SummaryCount = summaries.reduce(
+      (map: SummaryCount, summary) => {
         if (!summary) return map
         if (!map[summary]) map[summary] = 0
         map[summary] += 1

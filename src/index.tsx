@@ -3,19 +3,21 @@ import { render } from 'react-dom'
 import { getUrlHash } from './util'
 import Tape from './Tape'
 import prettyPrint from './prettyPrint'
+import * as Program from './program'
 
-interface BoofState {
+type BoofState = {
   input: string
   src: string
-  program: { summaries: string[]; output: string } | null
+  program: { summaries: string[]; output: string; state: Program.State } | null
   loading: boolean
 }
+type BoofProps = {}
 
 const nbsp = '\u00A0'
-class Boof extends React.Component<{}, BoofState> {
+class Boof extends React.Component<BoofProps, BoofState> {
   worker: Worker
 
-  constructor(props) {
+  constructor(props: BoofProps) {
     super(props)
     this.state = {
       input: '',

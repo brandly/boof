@@ -1,10 +1,13 @@
-export const includes = (list, val) => list.indexOf(val) !== -1
+export function includes<T>(list: T[], val: T) {
+  return list.indexOf(val) !== -1
+}
 
-export function getUrlHash(): { [key: string]: string } {
+type Hash = { [key: string]: string }
+export function getUrlHash(): Hash {
   return window.location.hash
     .slice(1)
     .split('&')
-    .reduce((out, pair) => {
+    .reduce((out: Hash, pair) => {
       const [key, val] = decodeURIComponent(pair).split('=')
       out[key] = val
       return out

@@ -3,7 +3,7 @@ import { includes } from './util'
 export default function prettyPrint(str: string): string {
   var depth = 0
   var output: string[] = []
-  const modifiers = '+-,.'
+  const modifiers = '+-,.'.split('')
   for (var i = 0; i < str.length; i++) {
     if (str[i] !== '\n' && str[i] !== ' ') {
       // Indent after linebreak
