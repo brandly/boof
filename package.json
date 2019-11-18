@@ -10,7 +10,7 @@
     "@types/react-dom": "16.8.4",
     "gh-pages": "1.1.0",
     "jest": "23.1.0",
-    "parcel-bundler": "1.12.3",
+    "parcel-bundler": "1.12.4",
     "ts-jest": "22.4.6",
     "typescript": "3.7.2"
   },
