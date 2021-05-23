@@ -25,7 +25,7 @@ const tokenize = (src: string) => {
 
   let line = 0
   let column = 0
-  const tokens = chars.map((char, i) => {
+  const tokens = chars.map((char) => {
     const t = {
       char,
       line,
@@ -65,8 +65,8 @@ export class Program {
   run(input: string = '', debug: boolean = false) {
     const inputChars = input.split('')
     while (!this.hasFinished()) {
-      let before = this.state
-      let token = this.tokens[this.state.index]
+      const before = this.state
+      const token = this.tokens[this.state.index]
       this.state = advance(consume(this.tokens, this.state, inputChars))
       this.history.push({
         before,

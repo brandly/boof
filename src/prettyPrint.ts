@@ -1,10 +1,10 @@
 import { includes } from './util'
 
 export default function prettyPrint(str: string): string {
-  var depth = 0
-  var output: string[] = []
+  let depth = 0
+  const output: string[] = []
   const modifiers = '+-,.'.split('')
-  for (var i = 0; i < str.length; i++) {
+  for (let i = 0; i < str.length; i++) {
     if (str[i] !== '\n' && str[i] !== ' ') {
       // Indent after linebreak
       if (output[output.length - 1] === '\n') {
@@ -36,7 +36,7 @@ export default function prettyPrint(str: string): string {
 
 const repeat = (val: string, times: number) => {
   const output = []
-  for (var i = 0; i < times; i++) {
+  for (let i = 0; i < times; i++) {
     output.push(val)
   }
   return output.join('')
