@@ -41,7 +41,7 @@ const tokenize = (src: string) => {
     return t
   })
 
-  return tokens.filter(t => valid.has(t.char))
+  return tokens.filter((t) => valid.has(t.char))
 }
 
 export class Program {
@@ -86,7 +86,7 @@ export class Program {
   }
 
   print() {
-    return this.state.output.map(char => String.fromCharCode(char)).join('')
+    return this.state.output.map((char) => String.fromCharCode(char)).join('')
   }
 
   hasFinished() {

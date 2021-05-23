@@ -33,10 +33,7 @@ function summarize(history: Program.Log[]): string {
     .map((char: number) => String.fromCharCode(char))
     .join('')
   const printed: string = prints.length ? `Print ${JSON.stringify(prints)}` : ''
-  return cellChanges
-    .concat(printed)
-    .filter(Boolean)
-    .join('. ')
+  return cellChanges.concat(printed).filter(Boolean).join('. ')
 }
 
 function changeSequencesPerLine(history: Program.Log[]): Program.Log[][][] {
@@ -56,8 +53,8 @@ function changeSequencesPerLine(history: Program.Log[]): Program.Log[][][] {
 const nbsp = '\u00A0'
 type SummaryCount = { [summary: string]: number }
 function summariesPerLine(history: Program.Log[]): string[] {
-  return changeSequencesPerLine(history).map(line => {
-    const summaries = line.map(seq => summarize(seq))
+  return changeSequencesPerLine(history).map((line) => {
+    const summaries = line.map((seq) => summarize(seq))
     const summaryToCount: SummaryCount = summaries.reduce(
       (map: SummaryCount, summary) => {
         if (!summary) return map
@@ -70,7 +67,7 @@ function summariesPerLine(history: Program.Log[]): string[] {
     return (
       Object.keys(summaryToCount)
         .map(
-          summary =>
+          (summary) =>
             `${summary}` +
             (summaryToCount[summary] > 1 ? ` x${summaryToCount[summary]}` : '')
         )

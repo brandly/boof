@@ -14,13 +14,13 @@ const Tape = (props: { state: Program.State }) => {
   const digits = Math.max.apply(
     Math,
     tape
-      .map(v => v.toString().length)
+      .map((v) => v.toString().length)
       .concat((tape.length - 1).toString().length)
   )
   const indexes = tape
     .map((_, index: number) => toDigits(digits, index))
     .join(separator)
-  const prints = tape.map(v => toDigits(digits, v)).join(separator)
+  const prints = tape.map((v) => toDigits(digits, v)).join(separator)
   const pointer = tape
     .map((_, index: number) =>
       toDigits(digits, index === props.state.pointer ? '^' : '')

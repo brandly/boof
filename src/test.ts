@@ -19,5 +19,7 @@ test('cells overflow', () => {
 
 test('negative tape pointer index', () => {
   const p = new Program('<')
-  expect(() => { p.run() }).toThrow()
+  expect(() => {
+    p.run()
+  }).toThrow()
 })

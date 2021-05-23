@@ -32,7 +32,7 @@ class Boof extends React.Component<BoofProps, BoofState> {
 
   initWorker() {
     let worker = new Worker('./worker.tsx')
-    worker.onmessage = e => {
+    worker.onmessage = (e) => {
       this.setState({
         program: e.data,
         loading: false
@@ -76,7 +76,7 @@ class Boof extends React.Component<BoofProps, BoofState> {
                 type="text"
                 placeholder="input"
                 value={input}
-                onChange={e => {
+                onChange={(e) => {
                   this.setState({ input: e.target.value })
                   // wait for state to update
                   setTimeout(() => {
@@ -84,7 +84,7 @@ class Boof extends React.Component<BoofProps, BoofState> {
                   })
                 }}
               />
-              <span className="operator">-></span>
+              <span className="operator">-&gt;</span>
               <input
                 type="text"
                 placeholder="output"
@@ -131,7 +131,7 @@ class Boof extends React.Component<BoofProps, BoofState> {
                 overflowX: 'auto'
               }}
               value={this.state.src}
-              onChange={e => {
+              onChange={(e) => {
                 if (e.target instanceof HTMLTextAreaElement) {
                   const src = e.target.value
                   this.run(src)
